@@ -1,0 +1,104 @@
+<!--
+	NOTES:
+	1. All tokens are represented by '$' sign in the template.
+	2. You can write your code only wherever mentioned.
+	3. "DO NOT" alter the tokens in the template html as they are required during publishing.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>myShapeColor</title>
+  <!-- write your code here -->
+
+
+  <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+  <script src="myShapeColor.js"></script>
+  <script>
+    var canvas, stage, exportRoot;
+    function init() {
+      // --- write your JS code here ---
+
+      canvas = document.getElementById("canvas");
+
+      stage = new createjs.Stage(canvas);
+      stage.update();
+
+      var myFace1 = new lib.MyFace();
+      var mapColor = {
+        eye: "#000000",
+        mouth: "#ff0000",
+        eyeLine : "#ffff00"
+      }
+
+      searchHierarchyShapeColor(myFace1, mapColor, changeColor, null);
+      stage.addChild(myFace1);
+
+
+      var myFace2 = new lib.MyFace();
+      var mapColor = {
+        eye: "#0000ff",
+        mouth: "#ff8888",
+        eyeLine : "#ffffff",
+        faceBase : "#000000"
+      }
+
+      searchHierarchyShapeColor(myFace2, mapColor, changeColor, null);
+      stage.addChild(myFace2);
+      myFace2.x = 130;
+
+
+      createjs.Ticker.setFPS(lib.properties.fps);
+      createjs.Ticker.addEventListener("tick", stage);
+    }
+
+    /**
+     * @param shape createjs.Shape
+     * @param 色
+     */
+    function changeColor(shape, color) {
+      var instructions = shape.graphics.instructions;
+      if (instructions && instructions.length > 0) {
+        for (var i = 0; i < instructions.length; i++) {
+          var cmd = instructions[i];
+          if (cmd instanceof createjs.Graphics.Fill) { // 塗りのとき
+            cmd.style = color;
+          } else if (cmd instanceof createjs.Graphics.Stroke) { // 線のとき
+            cmd.style = color;
+          }
+        }
+      }
+    }
+    
+     /**
+     * オブジェクト内のシェイプインスタンスを探す
+     * @param container
+     * @param mapColor
+     * @param callFunc
+     * @param parentKey
+     */
+    function searchHierarchyShapeColor(container, mapColor, callFunc, parentKey) {
+
+      Object.keys(container).forEach(function (key) {
+        if (container[key] instanceof createjs.Shape) {
+          // mapと同じ名前のものがあったら。
+          if (parentKey && mapColor.hasOwnProperty(parentKey)) {
+            callFunc(container[key], mapColor[parentKey]);
+          }
+        }
+        if (container[key] instanceof createjs.MovieClip) {
+          searchHierarchyShapeColor(container[key], mapColor, callFunc, key);
+        }
+      });
+    }
+
+  </script>
+
+  <!-- write your code here -->
+
+</head>
+<body onload="init();" style="background-color:#D4D4D4;margin:0px;">
+<canvas id="canvas" width="550" height="400" style="background-color:#FFFFFF"></canvas>
+</body>
+</html>
